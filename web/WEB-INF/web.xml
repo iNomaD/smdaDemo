@@ -4,22 +4,13 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
     <servlet>
-        <servlet-name>TomcatHelloWorldExample</servlet-name>
-        <servlet-class>HelloWorldExample</servlet-class>
+        <servlet-name>PatientController</servlet-name>
+        <servlet-class>smda.controllers.PatientController</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>TomcatHelloWorldExample</servlet-name>
-        <url-pattern>/hello_example</url-pattern>
+        <servlet-name>PatientController</servlet-name>
+        <url-pattern>/get_patients</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>BotkinSheet</servlet-name>
-        <servlet-class>BotkinSheet</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>BotkinSheet</servlet-name>
-        <url-pattern>/botkin</url-pattern>
-    </servlet-mapping>
 </web-app>

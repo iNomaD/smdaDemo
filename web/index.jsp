@@ -19,12 +19,12 @@
         });
 
         var proxy = new Ext.data.HttpProxy({
-            url: 'hello_example',
+            url: 'get_patients',
             method: 'post'
         });
 
         var dstore = new Ext.data.JsonStore({
-            url: 'hello_example',
+            //url: 'hello_example',
             proxy: proxy,
             fields: [ 'id', 'sex', 'age', 'diagnosis', 'name' ],
             totalProperty: 'totalCount'
@@ -48,7 +48,6 @@
 //            },
             listeners: {
                 cellclick: function (grid, rowIndex, colIndex, e) {
-                    var record = grid.getStore().getAt(rowIndex);
                     var record = grid.getStore().getAt(rowIndex);
                     console.log(record.id);
                     dynamicPanel.src = 'sheet.jsp?patient=' + record.id;

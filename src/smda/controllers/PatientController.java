@@ -1,7 +1,12 @@
+package smda.controllers; /**
+ * Created by Max on 23.07.2016.
+ */
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
+import smda.models.Patient;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,40 +18,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by m.lapaev on 26.07.16.
- */
-public class BotkinSheet extends HttpServlet {
+public class PatientController extends HttpServlet {
+
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         Map<String, String[]> params = request.getParameterMap();
         Connection conn = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("org.postgresql.Driver").newInstance();
             conn =
-                    DriverManager.getConnection("jdbc:mysql://localhost/botkin?" +
-                            "user=root&password=12345");
+                    DriverManager.getConnection("jdbc:postgresql://localhost:5432/botkin?" +
+                            "user=postgres&password=12345");
             Statement st = conn.createStatement();
-            String sql = "select * from analysis" + (params.get("patient") == null || params.get("patient").equals("") ? " " : " where patientId = " + request.getParameter("patient"));
+            String sql = "select * from patients" + (params.get("pattern") == null || params.get("pattern").equals("") ? " " : " where name LIKE '" + request.getParameter("pattern") + "' ");
+            System.out.println(sql);
             ResultSet rs = st.executeQuery(sql);
-            List<Analysis> list1 = new ArrayList<Analysis>();
-            Analysis a;
+            List<Patient> list1 = new ArrayList<Patient>();
+            Patient p;
             while (rs.next()) {
-                a = new Analysis();
-                a.setId(rs.getInt("id"));
-                a.setDate(rs.getDate("date"));
-                a.setHct(rs.getFloat("hct"));
-                a.setHgb(rs.getFloat("hgb"));
-                a.setWbc(rs.getFloat("wbc"));
-                a.setLimpho_perc(rs.getFloat("limpho_perc"));
-                a.setNeutrophil_perc(rs.getFloat("neutrophil_perc"));
-                a.setNeutrophil_stick_perc(rs.getFloat("neutrophil_stick_perc"));
-                a.setNeutrophil_sya_perc(rs.getFloat("neutrophil_sya_perc"));
-                a.setPatientId(rs.getString("patientId"));
-                list1.add(a);
+                p = new Patient();
+                p.setId(rs.getString("id"));
+                p.setAge(rs.getInt("age"));
+                p.setSex(rs.getBoolean("sex"));
+                p.setDiagnosis(rs.getString("diagnosis"));
+                p.setName(rs.getString("name"));
+                list1.add(p);
             }
             Gson gson = new Gson();
-            JsonElement element = gson.toJsonTree(list1, new TypeToken<List<Analysis>>() {
+            JsonElement element = gson.toJsonTree(list1, new TypeToken<List<Patient>>() {
             }.getType());
             JsonArray jsonArray = element.getAsJsonArray();
             response.setContentType("application/json");

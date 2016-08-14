@@ -1,12 +1,10 @@
-<%@ page import="com.google.gson.Gson" %>
-<%@ page import="com.google.gson.JsonElement" %>
-<%@ page import="com.google.gson.reflect.TypeToken" %>
-<%@ page import="com.google.gson.JsonArray" %>
-<%@ page import="java.sql.*" %>
+<%@ page import="smda.models.Analysis" %>
+<%@ page import="smda.models.MeasurementList" %>
+<%@ page import="smda.services.AnalysisService" %>
+<%@ page import="smda.services.Interpolator" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.*" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="java.util.List" %>
 
 <%--
   Created by IntelliJ IDEA.
@@ -25,97 +23,30 @@
 
 <%!
     Date[] dates = null;
-    float[] hct = null;
-    float[] hgb = null;
-    float[] wbc = null;
-    float[] limpho_perc = null;
-    float[] neutrophil_perc = null;
-    float[] neutrophil_stick_perc = null;
-    float[] neutrophil_sya_perc = null;
+    Float[] hct = null;
+    Float[] hgb = null;
+    Float[] wbc = null;
+    Float[] limpho_perc = null;
+    Float[] neutrophil_perc = null;
+    Float[] neutrophil_stick_perc = null;
+    Float[] neutrophil_sya_perc = null;
     private List<Interval> itvs;
 %>
 <%
     String name = request.getParameter("patient");
-    Connection conn = null;
-    try {
-        Class.forName("org.postgresql.Driver").newInstance();
-        conn =
-                DriverManager.getConnection("jdbc:postgresql://localhost:5432/botkin?" +
-                        "user=postgres&password=12345");
-        Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-                ResultSet.CONCUR_UPDATABLE);
-        String sql = "select analysis.* from analysis " + (name.equals("") ? " " : " where pat_id = '" + request.getParameter("patient") + "' ORDER BY date ASC");
-        ResultSet rs = st.executeQuery(sql);
-        int count = 0;
-        if (rs.last()) {
-            count = rs.getRow();
-            rs.beforeFirst();
-        }
-        Date[] tmp = new Date[count];
-        count = 0;
-        while (rs.next()) {
-            tmp[count] = rs.getDate("date");
-            count++;
-        }
-        rs.beforeFirst();
-        Date d1 = tmp[0];
-        Date d2 = tmp[tmp.length - 1];
-        int days = (int) ((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 2;
 
-        dates = new Date[days];
-        Calendar c = Calendar.getInstance();
-        c.setTime(d1);
-        for (int i = 0; i < dates.length; i++) {
-            c.add(Calendar.DATE, 1);
-            dates[i] = new java.sql.Date(c.getTime().getTime());
-        }
-        hct = new float[days];
-        hgb = new float[days];
-        wbc = new float[days];
-        limpho_perc = new float[days];
-        neutrophil_perc = new float[days];
-        neutrophil_stick_perc = new float[days];
-        neutrophil_sya_perc = new float[days];
-        for (int i = 0; i < days; i++) {
-            hct[i] = -1;
-            hgb[i] = -1;
-            wbc[i] = -1;
-            limpho_perc[i] = -1;
-            neutrophil_perc[i] = -1;
-            neutrophil_stick_perc[i] = -1;
-            neutrophil_sya_perc[i] = -1;
-        }
-        int index;
+    MeasurementList ml = AnalysisService.getMeasurementList(name);
+    Interpolator.interpolate(ml);
 
-        while (rs.next()) {
-            index = find(dates, rs.getDate("date"));
-            if (index > -1) {
-                hct[index] = rs.getFloat("hct");
-                hgb[index] = rs.getFloat("hgb");
-                wbc[index] = rs.getFloat("wbc");
-                limpho_perc[index] = rs.getFloat("limpho_perc");
-                neutrophil_perc[index] = rs.getFloat("neutrophil_perc");
-                neutrophil_stick_perc[index] = rs.getFloat("neutrophil_stick_perc");
-                neutrophil_sya_perc[index] = rs.getFloat("neutrophil_sya_perc");
-            }
-        }
-
-    } catch (IllegalAccessException e) {
-        e.printStackTrace();
-    } catch (InstantiationException e) {
-        e.printStackTrace();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-    }
-    interpolate(hct);
-    interpolate(hgb);
-    interpolate(wbc);
-    interpolate(limpho_perc);
-    interpolate(neutrophil_perc);
-    interpolate(neutrophil_stick_perc);
-    interpolate(neutrophil_sya_perc);
+    int days = ml.size();
+    dates = ml.getArrayDate();
+    hct = ml.getArray(Analysis.Parameter.hct);
+    hgb = ml.getArray(Analysis.Parameter.hgb);
+    wbc = ml.getArray(Analysis.Parameter.wbc);
+    limpho_perc = ml.getArray(Analysis.Parameter.limpho_perc);
+    neutrophil_perc = ml.getArray(Analysis.Parameter.neutrophil_perc);
+    neutrophil_stick_perc = ml.getArray(Analysis.Parameter.neutrophil_stick_perc);
+    neutrophil_sya_perc = ml.getArray(Analysis.Parameter.neutrophil_sya_perc);
 
     itvs = new ArrayList<Interval>();
     int nIntervals = hct.length % 3 == 0 ? hct.length / 3 : hct.length / 3 + 1;
@@ -180,32 +111,19 @@
 %>
 
 <%!
-    public static int find(Date[] array, Date date) {
-        for (int i = 0; i < array.length; i++) {
-
-            if (array[i].equals(date)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-%>
-
-
-<%!
     public class Interval {
         private static final float NaN = 666f;
         private static final float a = 0.0f;
         private float mF;
-        float[][] interval;
+        Float[][] interval;
         private final int params;
 
         public Interval(int size, int params) {
-            interval = new float[params][size];
+            interval = new Float[params][size];
             this.params = params;
         }
 
-        public float[][] getInterval() {
+        public Float[][] getInterval() {
             return interval;
         }
 
