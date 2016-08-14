@@ -1,8 +1,8 @@
 <%@ page import="smda.models.Analysis" %>
+<%@ page import="smda.models.Interval" %>
 <%@ page import="smda.models.MeasurementList" %>
 <%@ page import="smda.services.AnalysisService" %>
 <%@ page import="smda.services.Interpolator" %>
-<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
 
@@ -38,7 +38,6 @@
     MeasurementList ml = AnalysisService.getMeasurementList(name);
     Interpolator.interpolate(ml);
 
-    int days = ml.size();
     dates = ml.getArrayDate();
     hct = ml.getArray(Analysis.Parameter.hct);
     hgb = ml.getArray(Analysis.Parameter.hgb);
@@ -48,124 +47,17 @@
     neutrophil_stick_perc = ml.getArray(Analysis.Parameter.neutrophil_stick_perc);
     neutrophil_sya_perc = ml.getArray(Analysis.Parameter.neutrophil_sya_perc);
 
-    itvs = new ArrayList<Interval>();
-    int nIntervals = hct.length % 3 == 0 ? hct.length / 3 : hct.length / 3 + 1;
-    int lastSize = hct.length % 3 == 0 ? 3 : hct.length - (nIntervals - 1) * 3;
-    int s = 0;
-    Interval interval = null;
-    int cursor = 0;
-    for (int i = 0; i < nIntervals; i++) {
-        s = i == nIntervals - 1 ? lastSize : 3;
-        itvs.add(interval = new Interval(s, 7));
-        System.arraycopy(hct, cursor, interval.getInterval()[0], 0, s);
-        System.arraycopy(hgb, cursor, interval.getInterval()[1], 0, s);
-        System.arraycopy(wbc, cursor, interval.getInterval()[2], 0, s);
-        System.arraycopy(limpho_perc, cursor, interval.getInterval()[3], 0, s);
-        System.arraycopy(neutrophil_perc, cursor, interval.getInterval()[4], 0, s);
-        System.arraycopy(neutrophil_stick_perc, cursor, interval.getInterval()[5], 0, s);
-        System.arraycopy(neutrophil_sya_perc, cursor, interval.getInterval()[6], 0, s);
-        cursor += 3;
-    }
+    itvs = AnalysisService.split(ml, 3);
+    int nIntervals = itvs.size();
 
     Date[] fDates = new Date[nIntervals];
-    int j = 0;
-    for (int i = 0; i < dates.length; i++) {
-        if (i % 3 == 1) {
-            fDates[j] = dates[i];
-            j++;
-        }
-    }
-    float[] f = new float[nIntervals];
+    Float[] f = new Float[nIntervals];
     for (int i = 0; i < nIntervals; i++) {
-        itvs.get(i).calculateF();
-        f[i] = itvs.get(i).getF();
+        fDates[i] = itvs.get(i).getIntervalDate();
+        f[i] = itvs.get(i).calculateF();
     }
 
     System.out.println();
-%>
-
-<%!
-    public static void interpolate(float[] arr) {
-        for (int i = 0; i < arr.length; ++i) {
-            if (arr[i] == -1) {
-                int j = i + 1;
-                while (j < arr.length && arr[j] == -1) {
-                    ++j;
-                }
-                if (j == arr.length) {
-                    if (i == 0) {
-                        System.err.println("EMPTY PARAMETER");
-                    } else {
-                        arr[i] = arr[i - 1];
-                    }
-                } else {
-                    if (i == 0) {
-                        arr[i] = arr[j];
-                    } else {
-                        arr[i] = (arr[i - 1] + arr[j]) / 2;
-                    }
-                }
-            }
-        }
-    }
-%>
-
-<%!
-    public class Interval {
-        private static final float NaN = 666f;
-        private static final float a = 0.0f;
-        private float mF;
-        Float[][] interval;
-        private final int params;
-
-        public Interval(int size, int params) {
-            interval = new Float[params][size];
-            this.params = params;
-        }
-
-        public Float[][] getInterval() {
-            return interval;
-        }
-
-        public void calculateF() {
-            mF = 0;
-            for (int i = 0; i < params; ++i) {
-                for (int j = 0; j < i; ++j) {
-                    float corMat_ij = correlation(i, j);
-                    if (corMat_ij != NaN) {
-                        mF += (corMat_ij) - a;
-                    }
-                }
-            }
-            mF = Math.abs(mF);
-        }
-
-        private float correlation(int a, int b) {
-            int n = interval[0].length;
-            float x_mean = 0, y_mean = 0;
-            float sum_xx = 0, sum_yy = 0, sum_xy = 0;
-            for (int i = 0; i < n; ++i) {
-                x_mean += interval[a][i];
-                y_mean += interval[b][i];
-            }
-            x_mean /= n;
-            y_mean /= n;
-            for (int i = 0; i < n; ++i) {
-                sum_xy += (interval[a][i] - x_mean) * (interval[b][i] - y_mean);
-                sum_xx += (interval[a][i] - x_mean) * (interval[a][i] - x_mean);
-                sum_yy += (interval[b][i] - y_mean) * (interval[b][i] - y_mean);
-            }
-            if (sum_xx * sum_yy == 0) {
-                return NaN;
-            } else {
-                return sum_xy / (float) Math.sqrt(sum_xx * sum_yy);
-            }
-        }
-
-        public float getF() {
-            return mF;
-        }
-    }
 %>
 
 </head>

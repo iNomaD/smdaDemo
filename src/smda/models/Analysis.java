@@ -47,6 +47,52 @@ public class Analysis implements Serializable, Comparable<Analysis> {
     @Column(name = "neutrophil_sya_perc")
     private Float neutrophil_sya_perc;
 
+    public Float getParameter(Analysis.Parameter parameter){
+        switch(parameter){
+            case hct:
+                return getHct();
+            case hgb:
+                return getHgb();
+            case wbc:
+                return getWbc();
+            case limpho_perc:
+                return getLimpho_perc();
+            case neutrophil_perc:
+                return getNeutrophil_perc();
+            case neutrophil_stick_perc:
+                return getNeutrophil_stick_perc();
+            case neutrophil_sya_perc:
+                return  getNeutrophil_sya_perc();
+            default:
+                return null;
+        }
+    }
+
+    public void setParameter(Analysis.Parameter parameter, Float value){
+        switch(parameter){
+            case hct:
+                setHct(value);
+                break;
+            case hgb:
+                setHgb(value);
+                break;
+            case wbc:
+                setWbc(value);
+                break;
+            case limpho_perc:
+                setLimpho_perc(value);
+                break;
+            case neutrophil_perc:
+                setNeutrophil_perc(value);
+                break;
+            case neutrophil_stick_perc:
+                setNeutrophil_stick_perc(value);
+                break;
+            case neutrophil_sya_perc:
+                setNeutrophil_sya_perc(value);
+                break;
+        }
+    }
 
     public Float getHct() {
         return hct;

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
+import smda.Properties;
 import smda.models.Patient;
 
 import javax.servlet.ServletException;
@@ -27,8 +28,8 @@ public class PatientController extends HttpServlet {
         try {
             Class.forName("org.postgresql.Driver").newInstance();
             conn =
-                    DriverManager.getConnection("jdbc:postgresql://localhost:5432/botkin?" +
-                            "user=postgres&password=12345");
+                    DriverManager.getConnection("jdbc:postgresql://"+ Properties.host+"/botkin?" +
+                            "user="+Properties.db_username+"&password="+Properties.db_password);
             Statement st = conn.createStatement();
             String sql = "select * from patients" + (params.get("pattern") == null || params.get("pattern").equals("") ? " " : " where name LIKE '" + request.getParameter("pattern") + "' ");
             System.out.println(sql);
