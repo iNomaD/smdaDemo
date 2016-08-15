@@ -13,13 +13,20 @@ public class Interpolator {
         for(Analysis.Parameter p : Analysis.Parameter.values()){
             System.out.print("Interpolating "+p+" ... ");
             boolean success = interpolate(measurementList, p);
-            System.out.println(success ? "OK" : "NO");
+            if(success){
+                System.out.println("OK");
+            }
+            else{
+                System.out.println("NO");
+                measurementList.exclude(p);
+            }
+
         }
     }
 
     public static boolean interpolate(MeasurementList measurementList, Analysis.Parameter parameter){
         Float[] p = measurementList.getArray(parameter);
-        if(linear(p)){
+        if(p != null && linear(p)){
             measurementList.setArray(p, parameter);
             return true;
         }

@@ -15,8 +15,10 @@ import java.util.List;
 public class AnalysisService {
     public static final float VALUE_NA = -1;
 
-    public static MeasurementList getMeasurementList(String patientName){
-        MeasurementList result = new MeasurementList();
+
+
+    public static MeasurementList getMeasurementList(String patientName, String[] consider){
+        MeasurementList result = new MeasurementList(MeasurementList.parseParameters(consider));
 
         Connection conn = null;
         try {
@@ -78,11 +80,11 @@ public class AnalysisService {
     public static List<Interval> split(MeasurementList measurementList, final int intervalSize){
         List<Interval> itvs = new ArrayList<>();
 
-        Interval interval = new Interval();;
+        Interval interval = new Interval(measurementList.getConsiderable());
         for(int i=0; i<measurementList.size(); ++i){
             if(i != 0 && i % intervalSize == 0){
                 itvs.add(interval);
-                interval = new Interval();
+                interval = new Interval(measurementList.getConsiderable());
             }
             interval.add(measurementList.get(i));
         }

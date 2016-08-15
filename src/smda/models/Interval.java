@@ -3,6 +3,7 @@ package smda.models;
 import smda.Properties;
 
 import java.util.Date;
+import java.util.Set;
 
 /**
  * Created by Denis on 14.08.2016.
@@ -11,9 +12,19 @@ public class Interval extends MeasurementList {
     private Float mF = null;
     private static float a = Properties.correlation_significance;
 
+    public Interval(Set<Analysis.Parameter> params){
+        super();
+        considerable = params;
+    }
+
     public Float calculateF() {
+        if(considerable.size() < 2){
+            //can't calculate F with less then 2 parameters
+            return null;
+        }
+
         int size = size();
-        Analysis.Parameter[] p = Analysis.Parameter.values();
+        Analysis.Parameter[] p = considerable.toArray(new Analysis.Parameter[considerable.size()]);
         int nParams = p.length;
 
         float[][] matrix = new float[size][nParams];
@@ -34,6 +45,9 @@ public class Interval extends MeasurementList {
                 Float corMat_ij = correlation(matrix, i, j);
                 if (corMat_ij != null) {
                     mF += (corMat_ij) - a;
+                }
+                else { // if equal parameters
+                    mF += 1 - a;
                 }
             }
         }
