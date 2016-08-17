@@ -1,3 +1,5 @@
+<%@ page import="smda.models.Analysis" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>Hello World Window</title>
@@ -8,6 +10,23 @@
 
 <body>
 <script type="text/javascript">
+    parameter_date = ''
+    parameter_consider = ''
+    parameter_record = ''
+
+    function loadPage(dynamicPanel){
+        var page = 'sheet.jsp?patient=' + parameter_record
+
+        if (parameter_date != '') {
+            page += '&date=' + parameter_date
+        }
+        if (parameter_consider != ''){
+            page += '&consider=' + parameter_consider
+        }
+        dynamicPanel.src = page
+        //document.getElementById("data_export_iframe").contentDocument.location.reload(true);
+        document.getElementById("data_export_iframe").src = page;
+    }
 
     Ext.onReady(function () {
         Ext.QuickTips.init();
@@ -50,11 +69,8 @@
                 cellclick: function (grid, rowIndex, colIndex, e) {
                     var record = grid.getStore().getAt(rowIndex);
                     console.log(record.id);
-
-                    var page = 'sheet.jsp?patient=' + record.id+'&date=10.01.2014,15.02.2015'+"&consider=hct,limpho_perc,neutrophil_perc"
-                    dynamicPanel.src = page
-                    //document.getElementById("data_export_iframe").contentDocument.location.reload(true);
-                    document.getElementById("data_export_iframe").src = page;
+                    parameter_record = record.id
+                    loadPage(dynamicPanel)
                 }
             },
             multiSelect: false,
@@ -80,7 +96,6 @@
 //            var selected = grid.getSelectedRowIndexes();
 //            var rows = grid.getDataModel().getRows(selected);
 //            console.log(rows[0][0]);
-//        }, this);
 
         var search = new Ext.Panel({
             labelWidth: 150,
@@ -88,16 +103,26 @@
             frame: true,
             title: 'Search Demo Data',
             bodyStyle: 'padding:5px 5px 0',
-            width: 500,
+            width: 400,
             defaults: {width: 230},
             defaultType: 'textfield',
             region: 'north',
+            layout: {
+                type: 'hbox',
+                align: 'left'
+            },
             items: [
+                {
+                    xtype: 'label',
+                    text: 'Search regular expression:',
+                    margins: '0 0 0 0'
+                },
                 {
                     fieldLabel: 'Search regular expression',
                     name: 'pattern',
                     id: 'pattern'
                 }
+
             ],
             buttons: [
                 {
@@ -114,6 +139,96 @@
             // renderTo: Ext.getBody()
         });
 
+        var filter_date = new Ext.Panel({
+            labelWidth: 150,
+            height: '5%',
+            frame: true,
+            title: 'Date restriction',
+            bodyStyle: 'padding:5px 5px 0',
+            width: 400,
+            defaults: {width: 100},
+            defaultType: 'textfield',
+            region: 'north',
+            layout: {
+                type: 'hbox',
+                align: 'left'
+            },
+            items: [
+                {
+                    xtype: 'label',
+                    text: 'Date restriction:',
+                    margins: '0 0 0 0'
+                },
+                {
+                    fieldLabel: 'date1',
+                    name: 'date1',
+                    id: 'date1'
+                },
+                {
+                    fieldLabel: 'date2',
+                    name: 'date2',
+                    id: 'date2'
+                }
+
+            ],
+            buttons: [
+                {
+                    text: 'Apply',
+                    handler: function () {
+                        parameter_date = document.getElementById('date1').value+','+document.getElementById('date2').value
+                    }
+                }
+            ]
+            // renderTo: Ext.getBody()
+        });
+
+        var filter_par = new Ext.Panel({
+            labelWidth: 150,
+            height: '5%',
+            frame: true,
+            title: 'Parameters to show',
+            bodyStyle: 'padding:5px 5px 0',
+            width: 900,
+            defaults: {width: 230},
+            defaultType: 'textfield',
+            region: 'north',
+            layout: {
+                type: 'hbox',
+                align: 'left'
+            },
+            items: [
+                {
+                    id:'myGroup',
+                    xtype: 'checkboxgroup',
+                    fieldLabel: 'Single Column',
+                    itemCls: 'x-check-group-alt',
+                    width: '100%',
+                    // Put all controls in a single column with width 100%
+                    columns: 5,
+                    items: [
+                        <% for(Analysis.Parameter p : Analysis.Parameter.values()){%>
+                        {boxLabel: '<%=Analysis.getName(p)%>', id: 'cb_col_<%=p.name()%>', checked: true},
+                        <% } %>
+                    ]
+                }
+            ],
+            buttons: [
+                {
+                    text: 'Apply',
+                    handler: function () {
+                        parameter_consider = ''
+                        <% for(Analysis.Parameter p : Analysis.Parameter.values()){%>
+                            var checked = Ext.getCmp('cb_col_<%=p.name()%>').checked
+                            if(checked){
+                                parameter_consider += '<%=p.name()%>,'
+                            }
+                        <% } %>
+                        loadPage(dynamicPanel)
+                    }
+                }
+            ]
+            // renderTo: Ext.getBody()
+        });
 
         var sheet = new Ext.Panel({
             region: 'center',
@@ -144,7 +259,18 @@
             padding: 10,
             layout: 'border',
             items: [
-                search, grid, dynamicPanel
+                new Ext.Panel({
+                    xtype: 'container',
+                    height: 300,
+                    layout: {
+                        type: 'hbox',
+                        align: 'left'
+                    },
+                    region: 'north',
+                    items: [search, filter_date, filter_par]
+                }),
+                grid,
+                dynamicPanel
             ],
             renderTo: Ext.getBody()
         });

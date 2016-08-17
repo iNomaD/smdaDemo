@@ -33,16 +33,21 @@
 
     //resolve request parameters
     String name = request.getParameter("patient");
+    System.out.println("patient="+name);
     String _dates = request.getParameter("date");
+    System.out.println("date="+_dates);
     String[] __dates = _dates != null ? _dates.split(",") : null;
     Date date1 = null;
     Date date2 = null;
     if(__dates != null && __dates.length == 2){
         SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-        date1 = df.parse(__dates[0]);
-        date2 = df.parse(__dates[1]);
+        try {
+            date1 = df.parse(__dates[0]);
+            date2 = df.parse(__dates[1]);
+        }catch (Exception e){}
     }
     String _consider = request.getParameter("consider");
+    System.out.println("consider="+_consider);
     String[] consider = _consider != null ? _consider.split(",") : null;
 
     //load data
