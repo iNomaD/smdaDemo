@@ -26,9 +26,21 @@ public class Analysis implements Serializable, Comparable<Analysis> {
     @Column(name = "date")
     private Date date;
 
-    public enum Parameter{hct, hgb, wbc, limpho_perc, neutrophil_perc, neutrophil_stick_perc, neutrophil_sya_perc};
+    public enum Parameter{hct, hgb, mch, mchc, mcv, mpv, p_lcr, pct, pdw, plt, rbc, rdw, rdw_cv, rdw_sd, adf, aptv, actv, wbc, limpho_perc, monocites_perc, neutrophil_perc, neutrophil_stick_perc, neutrophil_sya_perc, esr};
 
     private Map<Parameter, Float> values = new HashMap<>();
+
+    private static Map<Parameter, String> names = new HashMap<>();
+
+    static{
+        setName(Parameter.hct, "Гематокрит");
+        setName(Parameter.hgb, "Гемоглобин");
+        setName(Parameter.wbc, "Лейкоциты");
+        setName(Parameter.limpho_perc, "Лимфоциты");
+        setName(Parameter.neutrophil_perc, "Нейтрофилы");
+        setName(Parameter.neutrophil_stick_perc, "Нейтрофилы палочкоядерные");
+        setName(Parameter.neutrophil_sya_perc, "Нейтрофилы сегментоядерные");
+    }
 
     public Float getParameter(Analysis.Parameter parameter){
         if(values.containsKey(parameter)) {
@@ -39,6 +51,17 @@ public class Analysis implements Serializable, Comparable<Analysis> {
 
     public void setParameter(Analysis.Parameter parameter, Float value){
         values.put(parameter, value);
+    }
+
+    public static String getName(Analysis.Parameter parameter){
+        if(names.containsKey(parameter)) {
+            return names.get(parameter);
+        }
+        return parameter.name();
+    }
+
+    public static void setName(Analysis.Parameter parameter, String value){
+        names.put(parameter, value);
     }
 
     public int getId() {
