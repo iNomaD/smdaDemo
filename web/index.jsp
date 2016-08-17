@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Hello World Window</title>
+    <title>Botkin Sheet Window</title>
     <link rel="stylesheet" type="text/css" href="resources/ext-3.4.1/resources/css/ext-all.css"/>
     <script type="text/javascript" src="resources/ext-3.4.1/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="resources/ext-3.4.1/ext-all.js"></script>
@@ -99,11 +99,11 @@
 
         var search = new Ext.Panel({
             labelWidth: 150,
-            height: '5%',
+            height: 150,
             frame: true,
-            title: 'Search Demo Data',
+            title: 'Search regular expression',
             bodyStyle: 'padding:5px 5px 0',
-            width: 400,
+            width: 150,
             defaults: {width: 230},
             defaultType: 'textfield',
             region: 'north',
@@ -112,11 +112,6 @@
                 align: 'left'
             },
             items: [
-                {
-                    xtype: 'label',
-                    text: 'Search regular expression:',
-                    margins: '0 0 0 0'
-                },
                 {
                     fieldLabel: 'Search regular expression',
                     name: 'pattern',
@@ -145,7 +140,8 @@
             frame: true,
             title: 'Date restriction',
             bodyStyle: 'padding:5px 5px 0',
-            width: 400,
+            width: 250,
+            height: 150,
             defaults: {width: 100},
             defaultType: 'textfield',
             region: 'north',
@@ -154,11 +150,6 @@
                 align: 'left'
             },
             items: [
-                {
-                    xtype: 'label',
-                    text: 'Date restriction:',
-                    margins: '0 0 0 0'
-                },
                 {
                     fieldLabel: 'date1',
                     name: 'date1',
@@ -176,6 +167,7 @@
                     text: 'Apply',
                     handler: function () {
                         parameter_date = document.getElementById('date1').value+','+document.getElementById('date2').value
+                        loadPage(dynamicPanel)
                     }
                 }
             ]
@@ -261,7 +253,7 @@
             items: [
                 new Ext.Panel({
                     xtype: 'container',
-                    height: 300,
+                    height: 230,
                     layout: {
                         type: 'hbox',
                         align: 'left'
