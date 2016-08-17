@@ -10,7 +10,7 @@ public class Interpolator {
     //public enum InterpolationMethod{linear, lagrange}
 
     public static void interpolate(MeasurementList measurementList){
-        for(Analysis.Parameter p : Analysis.Parameter.values()){
+        for(Analysis.Parameter p : measurementList.getConsiderable()){
             System.out.print("Interpolating "+p+" ... ");
             boolean success = interpolate(measurementList, p);
             if(success){

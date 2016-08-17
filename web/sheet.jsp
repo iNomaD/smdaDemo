@@ -39,6 +39,16 @@
 
     MeasurementList ml = AnalysisService.getMeasurementList(name, consider);
     Interpolator.interpolate(ml);
+    List<Interval> itvs = AnalysisService.split(ml, 3);
+
+    int nIntervals = itvs.size();
+    Date[] fDates = new Date[nIntervals];
+    Float[] f = new Float[nIntervals];
+    for (int i = 0; i < nIntervals; i++) {
+        fDates[i] = itvs.get(i).getIntervalDate();
+        f[i] = itvs.get(i).calculateF();
+        System.out.println("f["+i+"] = "+f[i] + "(size = "+itvs.get(i).size()+")");
+    }
 
     dates = ml.getArrayDate();
     hct = ml.getArray(Analysis.Parameter.hct);
@@ -48,17 +58,6 @@
     neutrophil_perc = ml.getArray(Analysis.Parameter.neutrophil_perc);
     neutrophil_stick_perc = ml.getArray(Analysis.Parameter.neutrophil_stick_perc);
     neutrophil_sya_perc = ml.getArray(Analysis.Parameter.neutrophil_sya_perc);
-
-    List<Interval> itvs = AnalysisService.split(ml, 3);
-    int nIntervals = itvs.size();
-
-    Date[] fDates = new Date[nIntervals];
-    Float[] f = new Float[nIntervals];
-    for (int i = 0; i < nIntervals; i++) {
-        fDates[i] = itvs.get(i).getIntervalDate();
-        f[i] = itvs.get(i).calculateF();
-        System.out.println("f["+i+"] = "+f[i] + "(size = "+itvs.get(i).size()+")");
-    }
 
     System.out.println();
 %>

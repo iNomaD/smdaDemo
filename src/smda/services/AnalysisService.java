@@ -25,7 +25,7 @@ public class AnalysisService {
             Class.forName("org.postgresql.Driver").newInstance();
             conn = DriverManager.getConnection("jdbc:postgresql://"+ Properties.host+"/botkin?" + "user="+Properties.db_username+"&password="+Properties.db_password);
             Statement st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            String sql = "select analysis.* from analysis " + (patientName.equals("") ? " " : " where pat_id = '" + patientName + "' ORDER BY date ASC");
+            String sql = "select analysis.* from analysis " + (patientName.equals("") ? " " : " where patientid = '" + patientName + "' ORDER BY date ASC");
             ResultSet rs = st.executeQuery(sql);
 
             while (rs.next()) {
@@ -37,26 +37,10 @@ public class AnalysisService {
                 }
                 analysis.setDate(date);
 
-                Float hct = rs.getFloat("hct");
-                analysis.setHct(rs.wasNull() || hct == VALUE_NA ? null : hct);
-
-                Float hgb = rs.getFloat("hgb");
-                analysis.setHgb(rs.wasNull() || hgb == VALUE_NA ? null : hgb);
-
-                Float wbc = rs.getFloat("wbc");
-                analysis.setWbc(rs.wasNull() || wbc == VALUE_NA ? null : wbc);
-
-                Float limpho_perc = rs.getFloat("limpho_perc");
-                analysis.setLimpho_perc(rs.wasNull() || limpho_perc == VALUE_NA ? null : limpho_perc);
-
-                Float neutrophil_perc = rs.getFloat("neutrophil_perc");
-                analysis.setNeutrophil_perc(rs.wasNull() || neutrophil_perc == VALUE_NA ? null : neutrophil_perc);
-
-                Float neutrophil_stick_perc = rs.getFloat("neutrophil_stick_perc");
-                analysis.setNeutrophil_stick_perc(rs.wasNull() || neutrophil_stick_perc == VALUE_NA ? null : neutrophil_stick_perc);
-
-                Float neutrophil_sya_perc = rs.getFloat("neutrophil_sya_perc");
-                analysis.setNeutrophil_sya_perc(rs.wasNull() || neutrophil_sya_perc == VALUE_NA ? null : neutrophil_sya_perc);
+                for(Analysis.Parameter parameter : result.getConsiderable()){
+                    Float value = rs.getFloat(parameter.name());
+                    analysis.setParameter(parameter, rs.wasNull() || value == VALUE_NA ? null : value);
+                }
 
                 result.add(analysis);
             }
@@ -88,7 +72,9 @@ public class AnalysisService {
             }
             interval.add(measurementList.get(i));
         }
-        itvs.add(interval);
+        if(interval.size() > 0) {
+            itvs.add(interval);
+        }
 
         return itvs;
     }
