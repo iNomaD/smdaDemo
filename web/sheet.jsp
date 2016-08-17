@@ -5,6 +5,7 @@
 <%@ page import="smda.services.Interpolator" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%--
   Created by IntelliJ IDEA.
@@ -21,7 +22,7 @@
 <link href="resources/vis/dist/vis.css" rel="stylesheet" type="text/css">
 <link href="style.css" rel="stylesheet" type="text/css">
 
-<%!
+<%
     Date[] dates = null;
     Float[] hct = null;
     Float[] hgb = null;
@@ -30,24 +31,35 @@
     Float[] neutrophil_perc = null;
     Float[] neutrophil_stick_perc = null;
     Float[] neutrophil_sya_perc = null;
-%>
-<%
+    Date[] fDates = null;
+    Float[] f = null;
+
     String name = request.getParameter("patient");
-    //String _consider = request.getParameter("consider"); //consider=hgb,...,leukocites
-    String _consider = "hct,limpho_perc,neutrophil_perc";
+    String _dates = request.getParameter("date");
+    String[] __dates = _dates != null ? _dates.split(",") : null;
+    Date date1 = null;
+    Date date2 = null;
+    if(__dates != null && __dates.length == 2){
+        SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+        date1 = df.parse(__dates[0]);
+        date2 = df.parse(__dates[1]);
+    }
+    String _consider = request.getParameter("consider");
     String[] consider = _consider != null ? _consider.split(",") : null;
 
-    MeasurementList ml = AnalysisService.getMeasurementList(name, consider);
+    MeasurementList ml = AnalysisService.getMeasurementList(name, consider, date1, date2);
     Interpolator.interpolate(ml);
     List<Interval> itvs = AnalysisService.split(ml, 3);
 
     int nIntervals = itvs.size();
-    Date[] fDates = new Date[nIntervals];
-    Float[] f = new Float[nIntervals];
-    for (int i = 0; i < nIntervals; i++) {
-        fDates[i] = itvs.get(i).getIntervalDate();
-        f[i] = itvs.get(i).calculateF();
-        System.out.println("f["+i+"] = "+f[i] + "(size = "+itvs.get(i).size()+")");
+    if(nIntervals > 0) {
+        fDates = new Date[nIntervals];
+        f = new Float[nIntervals];
+        for (int i = 0; i < nIntervals; i++) {
+            fDates[i] = itvs.get(i).getIntervalDate();
+            f[i] = itvs.get(i).calculateF();
+            System.out.println("f[" + i + "] = " + f[i] + "(size = " + itvs.get(i).size() + ")");
+        }
     }
 
     dates = ml.getArrayDate();
@@ -95,7 +107,9 @@
     <h3>Нейтрофилы сегментоядерные, %</h3><div name="neutrophil_sya_perc" id="neutrophil_sya_perc" class="graph_container"></div>
 <% } %>
 
+<% if(f != null){ %>
 <h3>Функционал</h3><div name="functional" id="functional" class="graph_container"></div>
+<% } %>
 
 <script type="text/javascript">
 

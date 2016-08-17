@@ -5,6 +5,7 @@ import smda.models.Analysis;
 import smda.models.Interval;
 import smda.models.MeasurementList;
 
+import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class AnalysisService {
 
 
 
-    public static MeasurementList getMeasurementList(String patientName, String[] consider){
+    public static MeasurementList getMeasurementList(String patientName, String[] consider, Date date1, Date date2){
         MeasurementList result = new MeasurementList(MeasurementList.parseParameters(consider));
 
         Connection conn = null;
@@ -29,20 +30,26 @@ public class AnalysisService {
             ResultSet rs = st.executeQuery(sql);
 
             while (rs.next()) {
+                boolean isEmpty = true;
                 Analysis analysis = new Analysis();
 
                 Date date = rs.getDate("date");
-                if(rs.wasNull()){
+                if(rs.wasNull() || ((date1 != null && date2 != null) && (date.before(date1) || date.after(date2)))){
                     continue;
                 }
                 analysis.setDate(date);
 
                 for(Analysis.Parameter parameter : result.getConsiderable()){
                     Float value = rs.getFloat(parameter.name());
-                    analysis.setParameter(parameter, rs.wasNull() || value == VALUE_NA ? null : value);
+                    if(!rs.wasNull() && value != VALUE_NA){
+                        analysis.setParameter(parameter, value);
+                        isEmpty = false;
+                    }
                 }
 
-                result.add(analysis);
+                if(!isEmpty) {
+                    result.add(analysis);
+                }
             }
 
         } catch (IllegalAccessException e) {

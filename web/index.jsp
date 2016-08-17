@@ -50,9 +50,11 @@
                 cellclick: function (grid, rowIndex, colIndex, e) {
                     var record = grid.getStore().getAt(rowIndex);
                     console.log(record.id);
-                    dynamicPanel.src = 'sheet.jsp?patient=' + record.id;
+
+                    var page = 'sheet.jsp?patient=' + record.id+'&date=10.01.2014,15.02.2015'+"&consider=hct,limpho_perc,neutrophil_perc"
+                    dynamicPanel.src = page
                     //document.getElementById("data_export_iframe").contentDocument.location.reload(true);
-                    document.getElementById("data_export_iframe").src= 'sheet.jsp?patient=' + record.id;
+                    document.getElementById("data_export_iframe").src = page;
                 }
             },
             multiSelect: false,

@@ -40,7 +40,7 @@ public class MeasurementList extends ArrayList<Analysis>{
     }
 
     public Float[] getArray(Analysis.Parameter parameter){
-        if(considerable.contains(parameter)) {
+        if(size() > 0 && considerable.contains(parameter)) {
             Float[] result = new Float[size()];
             for (int i = 0; i < size(); ++i) {
                 result[i] = get(i).getParameter(parameter);

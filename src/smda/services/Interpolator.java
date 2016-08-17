@@ -3,6 +3,8 @@ package smda.services;
 import smda.models.Analysis;
 import smda.models.MeasurementList;
 
+import java.util.Set;
+
 /**
  * Created by Denis on 14.08.2016.
  */
@@ -10,7 +12,8 @@ public class Interpolator {
     //public enum InterpolationMethod{linear, lagrange}
 
     public static void interpolate(MeasurementList measurementList){
-        for(Analysis.Parameter p : measurementList.getConsiderable()){
+        Set<Analysis.Parameter> considerable = measurementList.getConsiderable();
+        for(Analysis.Parameter p : considerable.toArray(new Analysis.Parameter[considerable.size()])){
             System.out.print("Interpolating "+p+" ... ");
             boolean success = interpolate(measurementList, p);
             if(success){
