@@ -12,7 +12,7 @@
 <script type="text/javascript">
     parameter_date = ''
     parameter_consider = ''
-    parameter_record = ''
+    parameter_record = '10009/A14'
 
     function loadPage(dynamicPanel){
         var page = 'sheet.jsp?patient=' + parameter_record
@@ -99,17 +99,15 @@
 
         var search = new Ext.Panel({
             labelWidth: 150,
-            height: 150,
             frame: true,
             title: 'Search regular expression',
             bodyStyle: 'padding:5px 5px 0',
-            width: 150,
-            defaults: {width: 230},
+            width: 160,
+            defaults: {width: 130},
             defaultType: 'textfield',
-            region: 'north',
             layout: {
                 type: 'hbox',
-                align: 'left'
+                align: 'middle'
             },
             items: [
                 {
@@ -136,18 +134,15 @@
 
         var filter_date = new Ext.Panel({
             labelWidth: 150,
-            height: '5%',
             frame: true,
             title: 'Date restriction',
             bodyStyle: 'padding:5px 5px 0',
-            width: 250,
-            height: 150,
+            width: 230,
             defaults: {width: 100},
             defaultType: 'textfield',
-            region: 'north',
             layout: {
                 type: 'hbox',
-                align: 'left'
+                align: 'middle'
             },
             items: [
                 {
@@ -176,26 +171,18 @@
 
         var filter_par = new Ext.Panel({
             labelWidth: 150,
-            height: '5%',
             frame: true,
             title: 'Parameters to show',
             bodyStyle: 'padding:5px 5px 0',
-            width: 900,
-            defaults: {width: 230},
-            defaultType: 'textfield',
-            region: 'north',
-            layout: {
-                type: 'hbox',
-                align: 'left'
-            },
+            //width: 600,
+            flex: 1,
             items: [
                 {
                     id:'myGroup',
                     xtype: 'checkboxgroup',
                     fieldLabel: 'Single Column',
                     itemCls: 'x-check-group-alt',
-                    width: '100%',
-                    // Put all controls in a single column with width 100%
+                    //width: '100%',
                     columns: 5,
                     items: [
                         <% for(Analysis.Parameter p : Analysis.Parameter.values()){%>
@@ -236,9 +223,9 @@
                 autoload: true,
                 tag: 'iframe',
                 height: '95%',
-                src: 'sheet.jsp?patient=10009/A14'
+                src: ''
             },
-            height: '95%',
+            //height: '95%',
             flex: 1,
             id: 'data_export_iframe',
             width: 600,
@@ -253,10 +240,10 @@
             items: [
                 new Ext.Panel({
                     xtype: 'container',
-                    height: 230,
+                    height: 200,
                     layout: {
                         type: 'hbox',
-                        align: 'left'
+                        align: 'stretch'
                     },
                     region: 'north',
                     items: [search, filter_date, filter_par]
@@ -266,6 +253,7 @@
             ],
             renderTo: Ext.getBody()
         });
+        loadPage(dynamicPanel)
     });
 
 
