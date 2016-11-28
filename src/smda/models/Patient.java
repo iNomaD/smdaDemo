@@ -21,7 +21,8 @@ public class Patient implements Serializable {
     private String name;
 
     @Column(name = "sex")
-    private Boolean sex;
+    //private Boolean sex;
+    private String sex;
 
     @Column(name = "diagnosis")
     private String diagnosis;
@@ -65,12 +66,18 @@ public class Patient implements Serializable {
         this.age = age;
     }
 
-    public Boolean getSex() {
+    /*public Boolean getSex() {
+        return sex;
+    }*/
+    public String getSex(){
         return sex;
     }
 
-    public void setSex(Boolean sex) {
+    /*public void setSex(Boolean sex) {
         this.sex = sex;
+    }*/
+    public void setSex(String sex){
+        this.sex=sex;
     }
 
 }

@@ -26,7 +26,8 @@ public class Analysis implements Serializable, Comparable<Analysis> {
     @Column(name = "date")
     private Date date;
 
-    public enum Parameter{hct, hgb, mch, mchc, mcv, mpv, p_lcr, pct, pdw, plt, rbc, rdw, rdw_cv, rdw_sd, adf, aptv, actv, wbc, limpho_perc, monocites_perc, neutrophil_perc, neutrophil_stick_perc, neutrophil_sya_perc, esr};
+    public enum Parameter{hct, hgb, mch, mchc, mcv, mpv, p_lcr, pct, pdw, plt, rbc, rdw, rdw_cv, rdw_sd, adf,
+        aptv, actv, wbc, limpho_perc, monocites_perc, neutrophil_perc, neutrophil_stick_perc, neutrophil_sya_perc, esr};
 
     private Map<Parameter, Float> values = new HashMap<>();
 
@@ -34,12 +35,29 @@ public class Analysis implements Serializable, Comparable<Analysis> {
 
     static{
         setName(Parameter.hct, "Гематокрит");
+        setName(Parameter.mch, "Ср.сод. ГГ в ЭЦ");
+        setName(Parameter.mchc, "Ср.конц. ГГ в ЭЦ");
+        setName(Parameter.mcv, "Средний объём ЭЦ");
+        setName(Parameter.mpv, "Средний объём ТЦ");
+        setName(Parameter.p_lcr, "Об. круптых ТЦ/ТЦ");
+        setName(Parameter.pct, "Тромбокрит");
+        setName(Parameter.pdw, "Гетерогенность ТЦ");
+        setName(Parameter.plt, "Тромбоциты");
         setName(Parameter.hgb, "Гемоглобин");
+        setName(Parameter.rbc, "Эритроциты");
+        setName(Parameter.rdw, "Гетерогенность ЭЦ");
+        setName(Parameter.rdw_cv, "RDW (коэф. вар.)");
+        setName(Parameter.rdw_sd, "RDW (ст. откл.)");
+        setName(Parameter.adf, "Агрегация ТЦ");
+        setName(Parameter.aptv, "АПТВ");
+        setName(Parameter.actv, "АЧТВ");
         setName(Parameter.wbc, "Лейкоциты");
-        setName(Parameter.limpho_perc, "Лимфоциты");
-        setName(Parameter.neutrophil_perc, "Нейтрофилы");
-        setName(Parameter.neutrophil_stick_perc, "Нейтрофилы палочкоядерные");
-        setName(Parameter.neutrophil_sya_perc, "Нейтрофилы сегментоядерные");
+        setName(Parameter.esr, "СОЭ");
+        setName(Parameter.monocites_perc, "Моноциты, %");
+        setName(Parameter.limpho_perc, "Лимфоциты, %");
+        setName(Parameter.neutrophil_perc, "Нейтрофилы, %");
+        setName(Parameter.neutrophil_stick_perc, "Нейтрофилы п/я, %");
+        setName(Parameter.neutrophil_sya_perc, "Нейтрофилы с/я, %");
     }
 
     public Float getParameter(Analysis.Parameter parameter){

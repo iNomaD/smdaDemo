@@ -2,10 +2,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Botkin Sheet Window</title>
+    <title>Система семантического анализа медицинских данных</title>
     <link rel="stylesheet" type="text/css" href="resources/ext-3.4.1/resources/css/ext-all.css"/>
+    <link rel="stylesheet" type="text/css" href="resources/ext-3.4.1/resources/css/xtheme-gray.css"/>
     <script type="text/javascript" src="resources/ext-3.4.1/adapter/ext/ext-base.js"></script>
     <script type="text/javascript" src="resources/ext-3.4.1/ext-all.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -14,18 +16,18 @@
     parameter_consider = ''
     parameter_record = '10009/A14'
 
-    function loadPage(dynamicPanel){
+    function loadPage(dynamicPanel) {
         var page = 'sheet.jsp?patient=' + parameter_record
 
         if (parameter_date != '') {
             page += '&date=' + parameter_date
         }
-        if (parameter_consider != ''){
+        if (parameter_consider != '') {
             page += '&consider=' + parameter_consider
         }
-        dynamicPanel.src = page
+        dynamicPanel.src = page;
         //document.getElementById("data_export_iframe").contentDocument.location.reload(true);
-        document.getElementById("data_export_iframe").src = page;
+       document.getElementById("data_export_iframe").src = page;
     }
 
     Ext.onReady(function () {
@@ -45,7 +47,7 @@
         var dstore = new Ext.data.JsonStore({
             //url: 'hello_example',
             proxy: proxy,
-            fields: [ 'id', 'sex', 'age', 'diagnosis', 'name' ],
+            fields: ['id', 'sex', 'age', 'diagnosis', 'name'],
             totalProperty: 'totalCount'
             //root: 'patients'
         });
@@ -75,17 +77,17 @@
             },
             multiSelect: false,
             columns: [
-                {id: 'id', header: "Id", dataIndex: 'id'},
-                {id: 'sex', header: "Sex", dataIndex: 'sex'},
-                {id: 'age', header: "Age", dataIndex: 'age'},
-                {id: 'diagnosis', header: "Diagnosis", dataIndex: 'diagnosis'},
-                {id: 'name', header: "Name", dataIndex: 'name'}
+                {id: 'id', header: "Рег.номер", dataIndex: 'id'},
+                {id: 'sex', header: "Пол", dataIndex: 'sex'},
+                {id: 'age', header: "Возраст", dataIndex: 'age'},
+                {id: 'diagnosis', header: "Диагноз", dataIndex: 'diagnosis'},
+                {id: 'name', header: "Ф.И.О.", dataIndex: 'name'}
             ],
             stripeRows: true,
             autoExpandColumn: 'name',
             height: 350,
             width: 500,
-            title: 'Demo Data',
+            title: 'Список пациентов, удовлетворяющих запросу',
             region: 'west'
 //            collapsible: true,
 //            collapsed: false
@@ -100,18 +102,27 @@
         var search = new Ext.Panel({
             labelWidth: 150,
             frame: true,
-            title: 'Search regular expression',
+            title: 'Поиск по пациентам',
             bodyStyle: 'padding:5px 5px 0',
-            width: 160,
-            defaults: {width: 130},
+            width: 210,
+            defaults: {width: 190},
             defaultType: 'textfield',
             layout: {
-                type: 'hbox',
+                type: 'vbox',
                 align: 'middle'
             },
             items: [
                 {
-                    fieldLabel: 'Search regular expression',
+                    xtype: 'displayfield',
+                    value: 'Для шаблонов используйте символы "%" и "_", "_" - любой символ, "%" - последовательность любых символов'
+                },
+                {
+                    xtype: 'displayfield',
+                    value: 'Введите регулярное выражение:',
+                },
+                {
+                    emptyText: '%',
+                    value: '%',
                     name: 'pattern',
                     id: 'pattern'
                 }
@@ -119,12 +130,13 @@
             ],
             buttons: [
                 {
-                    text: 'Search',
+                    text: 'Искать',
                     handler: function () {
                         dstore.load({
                             params: {
                                 pattern: document.getElementById('pattern').value
-                            }});
+                            }
+                        });
 
                     }
                 }
@@ -135,33 +147,43 @@
         var filter_date = new Ext.Panel({
             labelWidth: 150,
             frame: true,
-            title: 'Date restriction',
+            title: 'Фильтрация по датам',
             bodyStyle: 'padding:5px 5px 0',
-            width: 230,
-            defaults: {width: 100},
+            width: 170,
+            defaults: {width: 150},
             defaultType: 'textfield',
             layout: {
-                type: 'hbox',
+                type: 'vbox',
                 align: 'middle'
             },
             items: [
                 {
-                    fieldLabel: 'date1',
-                    name: 'date1',
-                    id: 'date1'
+                    xtype: 'displayfield',
+                    value: 'Дата начала периода'
                 },
                 {
-                    fieldLabel: 'date2',
+                    fieldLabel: 'Начало',
+                    name: 'date1',
+                    id: 'date1',
+                    emptyText: '01.01.2014'
+                },
+                {
+                    xtype: 'displayfield',
+                    value: 'Дата окончания периода'
+                },
+                {
+                    fieldLabel: 'Окончание',
                     name: 'date2',
-                    id: 'date2'
+                    id: 'date2',
+                    emptyText: '31.12.2014'
                 }
 
             ],
             buttons: [
                 {
-                    text: 'Apply',
+                    text: 'Применить фильтр',
                     handler: function () {
-                        parameter_date = document.getElementById('date1').value+','+document.getElementById('date2').value
+                        parameter_date = document.getElementById('date1').value + ',' + document.getElementById('date2').value
                         loadPage(dynamicPanel)
                     }
                 }
@@ -172,18 +194,18 @@
         var filter_par = new Ext.Panel({
             labelWidth: 150,
             frame: true,
-            title: 'Parameters to show',
+            title: 'Список параментров для отображения и расчета функционала',
             bodyStyle: 'padding:5px 5px 0',
             //width: 600,
             flex: 1,
             items: [
                 {
-                    id:'myGroup',
+                    id: 'myGroup',
                     xtype: 'checkboxgroup',
                     fieldLabel: 'Single Column',
                     itemCls: 'x-check-group-alt',
                     //width: '100%',
-                    columns: 5,
+                    columns: 6,
                     items: [
                         <% for(Analysis.Parameter p : Analysis.Parameter.values()){%>
                         {boxLabel: '<%=Analysis.getName(p)%>', id: 'cb_col_<%=p.name()%>', checked: true},
@@ -193,14 +215,14 @@
             ],
             buttons: [
                 {
-                    text: 'Apply',
+                    text: 'Применить фильтр',
                     handler: function () {
                         parameter_consider = ''
                         <% for(Analysis.Parameter p : Analysis.Parameter.values()){%>
-                            var checked = Ext.getCmp('cb_col_<%=p.name()%>').checked
-                            if(checked){
-                                parameter_consider += '<%=p.name()%>,'
-                            }
+                        var checked = Ext.getCmp('cb_col_<%=p.name()%>').checked
+                        if (checked) {
+                            parameter_consider += '<%=p.name()%>,'
+                        }
                         <% } %>
                         loadPage(dynamicPanel)
                     }
@@ -232,7 +254,7 @@
             region: 'center'
         });
 
-        var panel = new Ext.Viewport({
+        var panel_botkin = new Ext.Panel({
             width: '100%',
             height: '100%',
             padding: 10,
@@ -240,7 +262,7 @@
             items: [
                 new Ext.Panel({
                     xtype: 'container',
-                    height: 200,
+                    height: 170,
                     layout: {
                         type: 'hbox',
                         align: 'stretch'
@@ -251,8 +273,44 @@
                 grid,
                 dynamicPanel
             ],
+
+        });
+
+        var tabs = new Ext.TabPanel({
+            defaults: {
+                layout: 'fit'
+            },
+            region: 'center',
+            activeTab: 0,
+            items: [{
+                title: 'Боткинский лист',
+                items: [
+                    panel_botkin
+                ]
+            }, {
+                title: 'Функции уравляющего персонала',
+                html: 'В настоящий момент вкладка находится в стадии разработки. Приносим извинения за доставленные неудобства.'
+            }]
+        });
+
+        var header = new Ext.Panel( {
+            region: 'north',
+            height: '80px',
+            html: '<div style="height: 80px; background-color: #DDDDDD;"><img src="resources/img/almazov.png" height="70px" align="left">' +
+            '<p>&nbsp;</p><p align="center" class="header">Система семантического анализа медицинских данных для Центра им. Алмазова</p></div>'
+        });
+
+        var panel = new Ext.Viewport({
+            width: '100%',
+            height: '100%',
+            padding: 10,
+            layout: 'border',
+            items:[
+                    header, tabs
+            ],
             renderTo: Ext.getBody()
         });
+
         loadPage(dynamicPanel)
     });
 

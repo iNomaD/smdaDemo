@@ -14,13 +14,13 @@ public class Interpolator {
     public static void interpolate(MeasurementList measurementList){
         Set<Analysis.Parameter> considerable = measurementList.getConsiderable();
         for(Analysis.Parameter p : considerable.toArray(new Analysis.Parameter[considerable.size()])){
-            System.out.print("Interpolating "+p+" ... ");
+            //System.out.print("Interpolating "+p+" ... ");
             boolean success = interpolate(measurementList, p);
             if(success){
-                System.out.println("OK");
+                //System.out.println("OK");
             }
             else{
-                System.out.println("NO");
+                //System.out.println("NO");
                 measurementList.exclude(p);
             }
 

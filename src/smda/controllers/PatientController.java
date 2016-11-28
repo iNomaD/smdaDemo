@@ -29,11 +29,11 @@ public class PatientController extends HttpServlet {
         try {
             Class.forName("org.postgresql.Driver").newInstance();
             conn =
-                    DriverManager.getConnection("jdbc:postgresql://"+ Properties.host+"/botkin?" +
-                            "user="+Properties.db_username+"&password="+Properties.db_password);
+                    DriverManager.getConnection("jdbc:postgresql://" + Properties.host + "/botkin?" +
+                            "user=" + Properties.db_username + "&password=" + Properties.db_password);
             Statement st = conn.createStatement();
             String sql = "select * from patients" + (params.get("pattern") == null || params.get("pattern").equals("") ? " " : " where name LIKE '" + request.getParameter("pattern") + "' ");
-            System.out.println(sql);
+           // System.out.println(sql);
             ResultSet rs = st.executeQuery(sql);
             List<Patient> list1 = new ArrayList<Patient>();
             Patient p;
@@ -41,7 +41,7 @@ public class PatientController extends HttpServlet {
                 p = new Patient();
                 p.setId(rs.getString("id"));
                 p.setAge(rs.getInt("age"));
-                p.setSex(rs.getBoolean("sex"));
+                p.setSex(rs.getBoolean("sex") == true ? "М" : "Ж");
                 p.setDiagnosis(rs.getString("diagnosis"));
                 p.setName(rs.getString("name"));
                 list1.add(p);
@@ -51,6 +51,7 @@ public class PatientController extends HttpServlet {
             }.getType());
             JsonArray jsonArray = element.getAsJsonArray();
             response.setContentType("application/json");
+            response.setCharacterEncoding("UTF8");
             response.getWriter().print(jsonArray);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
